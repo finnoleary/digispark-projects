@@ -3,9 +3,13 @@ CFLAGS= -Wall -Os -Iusbdrv -mmcu=attiny85 -DF_CPU=16500000
 OBJCPY=avr-objcopy
 OBJFLAGS = -j .text -j .data -O ihex
 
-OBJS = usbdrv/usbdrv.o usbdrv/oddebug.o usbdrv/usbdrvasm.o keyboard.o
+OBJS = usbdrv/usbdrv.o usbdrv/oddebug.o usbdrv/usbdrvasm.o main.o
+HEX=main.hex
 
-all:V: keyboard.hex
+all:V: $HEX
+
+deploy:V:
+  sudo micronucleus $HEX
 
 clean:V:
   rm *.o *.hex *.elf usbdrv/*.o
@@ -13,7 +17,7 @@ clean:V:
 %.hex: %.elf
   $OBJCPY $OBJFLAGS $prereq $stem.hex
 
-keyboard.elf: $OBJS
+main.elf: $OBJS
   $CC $CFLAGS $OBJS -o $target
 
 # ($OBJS): usbdrv/usbconfig.h

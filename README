@@ -1,14 +1,16 @@
-[Digispark](http://digistump.com/wiki/digispark) Secure Key
+Digispark Secure Key
+(http://digistump.com/wiki/digispark)
 
 Requires:
 	avr-gcc
 	avr-libc
-	[micronucleus](https://github.com/micronucleus/micronucleus)
-	[mk(1)](https://9fans.github.io/plan9port/unix/)
+	micronucleus (https://github.com/micronucleus/micronucleus)
+	mk(1) (https://9fans.github.io/plan9port/unix/)
 
 Howto:
+	mk clean
 	mk
-	mk push
+	mk deploy
 
 License: GPLv3
 Originally sourced from https://github.com/yuvadm/digispark-projects 
