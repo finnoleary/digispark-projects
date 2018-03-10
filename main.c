@@ -1,15 +1,16 @@
 /**
- * Project: AVR ATtiny USB Tutorial at http://codeandlife.com/
- * Author: Joonas Pihlajamaa, joonas.pihlajamaa@iki.fi
- * Base on V-USB example code by Christian Starkjohann
- * Copyright: (c) 2008 by OBJECTIVE DEVELOPMENT Software GmbH
- * License: GNU GPL v3 (see License.txt)
+ * Project: Digispark Security Key
+ * Author: Finn O'leary (finnoleary@inventati.org)
+ * Based on [See PRIOR file]
+ * Copyright: (c) 2018 Finn O'leary (For prior copyright notice see PRIOR file)
+ * License: GNU GPL v3 (see LICENSE file)
  */
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 #include <avr/eeprom.h>
 #include <util/delay.h>
+#include <string.h>
 
 #include "usbdrv.h"
 
@@ -71,14 +72,14 @@ usbMsgLen_t usbFunctionSetup(uchar data[8]) {
 		switch (rq->bRequest) {
 			case USBRQ_HID_GET_REPORT: // send "no keys pressed" if asked here
 				// wValue: ReportType (highbyte), ReportID (lowbyte)
-				usbMsgPtr = (void *)&keyboard_report; // we only have this one
+				usbMsgPtr = (usbMsgPtr_t)&keyboard_report; // we only have this one
 				keyboard_report.modifier = 0;
 				keyboard_report.keycode[0] = 0;
 				return sizeof(keyboard_report);
 			case USBRQ_HID_SET_REPORT: // if wLength == 1, should be LED state
 				return (rq->wLength.word == 1) ? USB_NO_MSG : 0;
 			case USBRQ_HID_GET_IDLE: // send idle rate to PC as required by spec
-				usbMsgPtr = &idleRate;
+				usbMsgPtr = (usbMsgPtr_t)&idleRate;
 				return 1;
 			case USBRQ_HID_SET_IDLE: // save idle rate as required by spec
 				idleRate = rq->wValue.bytes[1];
@@ -122,12 +123,15 @@ void buildReport(uchar send_key) {
 #define STATE_RELEASE_KEY 2
 
 int main() {
-	uchar i, button_release_counter = 0, state = STATE_SEND_KEY;
+	uchar i, state = STATE_SEND_KEY;
 
 	DDRB |= _BV(DDB1);
 
+	/*
 	for(i=0; i<sizeof(keyboard_report); i++) // clear report initially
 		((uchar *)&keyboard_report)[i] = 0;
+	*/
+	memset((void*)&keyboard_report, (uchar)0, sizeof(keyboard_report_t));
 
 	wdt_enable(WDTO_1S); // enable 1s watchdog timer
 
@@ -158,7 +162,7 @@ int main() {
 					PORTB |= _BV(PB1);
 					break;
 				case STATE_RELEASE_KEY:
-					buildReport(NULL);
+					buildReport('\0');
 					state = STATE_WAIT; // go back to waiting
 					PORTB &= ~_BV(PB1);
 					break;
