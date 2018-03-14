@@ -127,10 +127,6 @@ int main() {
 
 	DDRB |= _BV(DDB1);
 
-	/*
-	for(i=0; i<sizeof(keyboard_report); i++) // clear report initially
-		((uchar *)&keyboard_report)[i] = 0;
-	*/
 	memset((void*)&keyboard_report, (uchar)0, sizeof(keyboard_report_t));
 
 	wdt_enable(WDTO_1S); // enable 1s watchdog timer
